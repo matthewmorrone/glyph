@@ -1,0 +1,25 @@
+{
+  "name": "GlyphSearch",
+  "version": "1.3.0",
+  "description": "Search for icons from Font Awesome, Glyphicons, and Ionicons",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/thomaspark/glyphsearch.git"
+  },
+  "keywords": [
+    "fonts",
+    "glyphs",
+    "icons"
+  ],
+  "author": "Thomas Park",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thomaspark/glyphsearch/issues"
+  },
+  "dependencies": {
+    "grunt": "~0.4.1",
+    "grunt-compile-handlebars": "~0.6.2",
+    "algolia-search": "~1.2.1",
+    "grunt-merge-json": "~0.9.4"
+  }
+}

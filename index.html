@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>GlyphSearch</title>
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<meta property="og:title" content="GlyphSearch">
+<meta property="og:type" content="website">
+<meta property="og:url" content="http://glyphsearch.com">
+<meta property="og:image" content="https://cloud.githubusercontent.com/assets/900407/9474432/b5ea4a0a-4b2e-11e5-810d-9022da7c5f0b.png">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="stylesheet" href="css/bootstrap.css">
+<!-- <link rel="stylesheet" href="css/fixedsticky.css"> -->
+<link rel="stylesheet" href="css/fontawesome.css">
+<link rel="stylesheet" href="css/foundation.css">
+<link rel="stylesheet" href="css/icomoon.css">
+<link rel="stylesheet" href="css/ionicons.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="css/octicons.css">
+<link rel="stylesheet" href="css/glyphsearch.css">
+<link rel="stylesheet" href="css/jquery.ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.css">
+</head>
+<body>
+<div class="settings">
+	<hr>
+	<div>
+		<form>
+			<input name="query" type="search" id="search" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+		</form>
+	</div>
+	<hr>
+	<div>
+		<div id="libraries">
+			<span class="btn" data-library="all">All</span>
+			<span class="btn" data-library="font-awesome">Font Awesome</span><!--<a title="4.5.0" href="http://fontawesome.io/">Font Awesome</a>-->
+			<span class="btn" data-library="foundation">Foundation</span><!--<a title="3.0.0" href="http://zurb.com/playground/foundation-icon-fonts-3">Foundation</a>-->
+			<span class="btn" data-library="glyphicons">Glyphicons</span><!--<a title="1.9.0" href="http://glyphicons.com/">Glyphicons</a>-->
+			<span class="btn" data-library="icomoon">IcoMoon</span><!--<a title="0.0.3" href="http://icomoon.io/#icons-icomoon">IcoMoon</a>-->
+			<span class="btn" data-library="ionicons">Ionicons</span><!--<a title="2.0.1" href="http://ionicons.com/">Ionicons</a>-->
+			<span class="btn" data-library="material">Material</span><!--<a title="2.0.0" href="https://www.google.com/design/icons/">Material</a>-->
+			<span class="btn" data-library="octicons">Octicons</span><!--<a title="3.1.0" href="http://octicons.github.com/">Octicons</a>-->
+		</div>	
+		<!--
+		<a href="http://fontcdn.org">FontCDN</a>
+		<a href="http://bootswatch.com">Bootswatch</a>
+		-->
+	</div>
+	<hr>
+	<div id="controls">
+		<label><input type='checkbox' id='accordion' />&nbsp;Accordion</label><br />
+		<label><input type='checkbox' id='collapse' />&nbsp;Collapse</label><br />
+		<label><input type='checkbox' id='scroll' />&nbsp;Scroll</label><br />
+		<label><input type='checkbox' id='sticky' />&nbsp;Sticky Headers</label>
+		<label><input type='checkbox' id='rearrange' />&nbsp;Rearrange Icons</label>
+		<label><input type='checkbox' id='sort' />&nbsp;Rearrange Sections</label>
+		<label><button class="btn btn-default" id='collapseAll'>Collapse All</button></label>
+		<label><button class="btn btn-default" id='expandAll'>Expand All</button></label><br />
+		<label><button class="btn btn-default" id='invert'>Invert</button></label><br />
+		<label><button class="btn btn-default" id='export'>Export</button></label><br />
+		<input type="color" id="color" />
+		<input type="color" id="bgcolor" />
+		<div id="cache"></div>
+	</div>
+</div>
+<div class="main">
+	<div id="font-awesome" class="section">
+		<div class="header">
+			<h1>Font-Awesome</h1>
+		</div>
+		<div class="icons row"></div>
+	</div>
+	<div id="foundation" class="section">
+		<div class="header">
+			<h1>Foundation</h1>
+		</div>
+		<div class="icons row"></div>
+	</div>
+	<div id="glyphicons" class="section">
+		<div class="header">
+			<h1>Glyphicons</h1>
+		</div>
+		<div class="icons row"></div>
+	</div>
+	<div id="icomoon" class="section">
+		<div class="header">
+			<h1>IcoMoon</h1>
+		</div>
+		<div class="icons row"></div>
+	</div>
+	<div id="ionicons" class="section">
+		<div class="header">
+			<h1>Ionicons</h1>
+		</div>
+		<div class="icons row"></div>
+	</div>
+	<div id="material" class="section">
+		<div class="header">
+			<h1>Material</h1>
+		</div>
+		<div class="icons row"></div>
+	</div>
+	<div id="octicons" class="section">
+		<div class="header">
+			<h1>Octicons</h1>
+		</div>
+		<div class="icons row"></div>
+	</div>
+</div>
+<script src="jquery.js"></script>
+<script src="jquery.ui.js"></script>
+<script src="fixedsticky.js"></script>
+<script src="hogan.js"></script>
+<script src="algoliasearch.min.js"></script>
+<script src="purl.js"></script>
+<script src="controls.js"></script>
+<script src="glyphsearch.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.js"></script>
+</html>
+<!-- 
+todo:
+tooltip
+clipboard
+export
+persist
+categorize via drag and drop
+-->
+<!-- 
+https://api.jquery.com/category/effects/
+http://getbootstrap.com/components/
+http://jqueryui.com/resizable/
+http://bgrins.github.io/TinyColor/
+http://bgrins.github.io/spectrum/
+https://gist.github.com/matthewmorrone1/69eb333be3d8cd29a4ee
+http://getbootstrap.com/
+ -->
