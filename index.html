@@ -1,14 +1,10 @@
-<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>GlyphSearch</title>
+<title>Icon Search</title>
 <meta name="viewport" content="width=device-width, user-scalable=no">
 <meta property="og:title" content="GlyphSearch">
-<meta property="og:type" content="website">
-<meta property="og:url" content="http://glyphsearch.com">
-<meta property="og:image" content="https://cloud.githubusercontent.com/assets/900407/9474432/b5ea4a0a-4b2e-11e5-810d-9022da7c5f0b.png">
-<link rel="shortcut icon" href="favicon.ico">
+<link rel="icon" href="/psi.ico">
 <link rel="stylesheet" href="css/bootstrap.css">
 <!-- <link rel="stylesheet" href="css/fixedsticky.css"> -->
 <link rel="stylesheet" href="css/fontawesome.css">
@@ -20,6 +16,15 @@
 <link rel="stylesheet" href="css/glyphsearch.css">
 <link rel="stylesheet" href="css/jquery.ui.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.css">
+<style>
+.entry {
+	line-height: 50px;
+	padding: 10px;
+}
+.main {
+	user-select: none;
+}
+</style>
 </head>
 <body>
 <div class="settings">
@@ -40,7 +45,7 @@
 			<span class="btn" data-library="ionicons">Ionicons</span><!--<a title="2.0.1" href="http://ionicons.com/">Ionicons</a>-->
 			<span class="btn" data-library="material">Material</span><!--<a title="2.0.0" href="https://www.google.com/design/icons/">Material</a>-->
 			<span class="btn" data-library="octicons">Octicons</span><!--<a title="3.1.0" href="http://octicons.github.com/">Octicons</a>-->
-		</div>	
+		</div>
 		<!--
 		<a href="http://fontcdn.org">FontCDN</a>
 		<a href="http://bootswatch.com">Bootswatch</a>
@@ -57,10 +62,11 @@
 		<label><button class="btn btn-default" id='collapseAll'>Collapse All</button></label>
 		<label><button class="btn btn-default" id='expandAll'>Expand All</button></label><br />
 		<label><button class="btn btn-default" id='invert'>Invert</button></label><br />
+		<label><button class="btn btn-default" id='clear'>Clear</button></label><br />
 		<label><button class="btn btn-default" id='export'>Export</button></label><br />
 		<input type="color" id="color" />
 		<input type="color" id="bgcolor" />
-		<div id="cache"></div>
+		<!-- <div id="cache"></div> -->
 	</div>
 </div>
 <div class="main">
@@ -113,11 +119,424 @@
 <script src="hogan.js"></script>
 <script src="algoliasearch.min.js"></script>
 <script src="purl.js"></script>
-<script src="controls.js"></script>
-<script src="glyphsearch.js"></script>
+<script src="plumin.js"></script>
+<script>
+
+function controls() {
+	var log = console.log.bind(console);
+
+	$(".settings").resizable({handles: "e"})
+
+	$(".icons.row").selectable({filter: ".entry"})
+
+	$("#scroll").click(function() {
+		if ($("#scroll:checkbox").is(":checked")) {
+			$(".icons.row").css("max-height", function() {
+				return screen.height - (31 /*$(".header").outerHeight()*/ * ($(".header").length + 4))
+			})
+		}
+		else {
+			$(".icons.row").css("max-height", "")
+		}
+	}).click()
+
+
+	// $('.entry').each(function() {
+	// 	this.title = this.dataName
+	// })
+
+	$(document).tooltip({
+		position: {
+			my: "center bottom-20",
+			at: "center top",
+			using: function(position, feedback) {
+				$(this).css(position);
+				$("<div>")
+					.addClass("arrow")
+					.addClass(feedback.vertical)
+					.addClass(feedback.horizontal)
+					.appendTo(this);
+			}
+		},
+		content: function() {
+			return $(this).attr('data-name')
+		}
+	});
+	$(document).on("dblclick", ".entry", function() {
+		// $(this).find("div").show()
+		// $(this).find(".thumb").css("color", $("#color").spectrum("get").toRgbString())
+		// $(".icons.row").last().after($(this))
+		$("#cache").append($(this))
+		return true
+	})
+
+	var dur = 1000
+	$(".icons.row:gt(0)").hide()
+	$("#accordion").click()
+	$("#collapse").click(function() {
+		if ($("#collapse:checkbox").is(":checked")) {
+			$(".main").find(".header").click(function() {
+				if ($("#accordion:checkbox").is(":checked")) {
+					$(this).addClass("active")
+					$(".icons.row:not(.active)").slideUp(dur)
+				}
+
+				if (!$(this).next().is(":visible")) {
+					$(this).next().slideDown(dur)
+					$(this).addClass("active")
+				}
+				else if ($(this).next().is(":visible")) {
+					$(this).next().slideUp(dur)
+					$(this).removeClass("active")
+
+				}
+			})
+		}
+		else {
+			$(".main").find(".header").off("click")
+		}
+	}).click()
+
+
+	$("#collapseAll").click(function() {
+		$(".icons.row").each(function() {
+			if ($(this).is(":visible")) {
+				$(this).slideUp(dur)
+			}
+		})
+	})
+
+	$("#expandAll").click(function() {
+		$(".icons.row").each(function() {
+			if (!$(this).is(":visible")) {
+				$(this).slideDown(dur)
+			}
+		})
+	})
+
+	$("#invert").click(function() {
+		$(".ui-selected").css("-webkit-filter", "invert(100%)")
+		.css("background-color", "white")
+	})
+
+	$('#clear').click(function() {
+		$('.ui-selected').removeClass('ui-selected')
+		$('.ui-selected').trigger('unselected')
+	})
+
+	function exportFile(name, content) {
+		// var encodedUri = encodeURI(content.join("%0A"));
+		// var encodedContent = encodeURI(content);
+		// content = content.join("%0A")
+		var a = document.createElement("a");
+		a.target = '_blank'
+		a.href = 'data:attachment/csv,' + content
+		a.download = name
+		a.click()
+	}
+
+	$("#export").click(function() {
+		var exp = $(".ui-selected").map(function(a, b) {
+			return $(b).find('.description')[0].innerText.replace(/\s+/g, ',')
+				 + ','
+				 + $(b).find('.thumb i').css('font-family')
+				 + ','
+				 + window.getComputedStyle($(b).find('.thumb i')[0], ':before').content
+		}).toArray().join("%0A")
+		exportFile("icons.csv", exp)
+	})
+
+
+	$("#sticky").click(function() {
+		if ($("#sticky:checkbox").is(":checked")) {
+			FixedSticky.tests.sticky = false;
+			$(".header").fixedsticky();
+		}
+		else {
+			$(".header").fixedsticky("destroy")
+		}
+	}).attr("disabled", true)
+
+
+	$("#sort").click(function() {
+		if ($("#sort:checkbox").is(":checked")) {
+			$(".main").sortable({
+				axis: "y",
+				handle: ".header",
+				placeholder: "ui-state-highlight"
+			})
+		}
+	})//.click()
+
+
+
+
+
+
+
+	function hide() {
+		$(".ui-selected").hide()
+	}
+	function noop() {}
+
+	var commands = {
+		46: hide,
+		72: hide,
+		13: function() {
+			$(".ui-selected").css("color", $('#color').spectrum("get").toHexString())
+			$(".ui-selected").css("background-color", $('#bgcolor').spectrum("get").toHexString())
+		},
+		116: noop
+	}
+
+	window.addEventListener("keydown", function(e) {
+		if (e.which === 116) {return}
+		if (commands[e.which]) {
+			e.preventDefault()
+			commands[e.which]()
+		}
+	}, true);
+
+	$("#rearrange").click(function() {
+		if ($("#rearrange:checkbox").is(":checked")) {
+			$(".icons.row").sortable({
+				placeholder: "placeholder",
+				forcePlaceholderSize: true,
+				helper: "clone",
+				forceHelperSize: true,
+				opacity: '.5',
+				start: function(event, ui) {
+					$('.ui-sortable-placeholder').addClass("placeholder").removeAttr("style")
+				},
+				tolerance: "pointer",
+				// start:function(event,ui){
+				// 	$(ui.item).show();
+				// 	clone = $(ui.item).clone();
+				// 	before = $(ui.item).prev();
+				// },
+				// stop:function(event, ui){
+				// 	before.after(clone);
+				// }
+				connectWith: ".icons.row"
+			})
+		}
+		else {
+			$(".icons.row").sortable("destroy");
+		}
+	})//.click()
+
+
+	// var startColor = tinycolor.mostReadable("#ffff00", ["#ffffff", "#000000"]).toHexString();
+	var startColor = "#000000"
+	$('#color').spectrum({
+		color: startColor,
+		showInput: true,
+		allowEmpty: true,
+		showAlpha: true,
+		showPalette: true,
+		togglePaletteOnly: true,
+		change: function(color) {
+			$(".ui-selected").css("color", color.toHexString())
+		},
+		move: function(color) {
+			$(".ui-selected").css("color", color.toHexString())
+		}
+	})
+	$('#bgcolor').spectrum({
+		color: "#ffffff",
+		showInput: true,
+		allowEmpty: true,
+		showAlpha: true,
+		showPalette: true,
+		togglePaletteOnly: true,
+		change: function(color) {
+			$(".ui-selected").css("background-color", color.toHexString())
+		},
+		move: function(color) {
+			$(".ui-selected").css("background-color", color.toHexString())
+		}
+	})
+}
+</script>
+<script>
+$(function() {
+	var log = console.log.bind(console);
+	var iconsIndex = new AlgoliaSearch("9JQV0RIHU0", "2219d421236cba4cf37a98e7f97b3ec5").initIndex('icons'),
+		innerTemplate = '<div class="entry col-lg-1 col-md-2 col-sm-3 col-xs-3" data-name={{{name}}} data-unicode="{{{unicode}}}"'+
+			'title="{{{class}}}&#10;{{{_highlightResult.name.value}}}&#10;{{{_highlightResult.tags.value}}}"' +
+			'>' +
+			'<div class="description">{{{class}}}</div>' +
+			'<div class="thumb">{{{html}}}</div>' +
+			'<div class="name">{{{_highlightResult.name.value}}}</div>' +
+			'<div class="tags hidden-xs">{{{_highlightResult.tags.value}}}</div>' +
+			'</div>',
+		allTemplate = '<div class="entry col-lg-1 col-md-2 col-sm-3 col-xs-3" data-name={{{name}}} data-unicode="{{{unicode}}}"' +
+			'title="{{{class}}}&#10;{{{name}}}&#10;{{{tags}}}"' +
+			'>' +
+			'<div class="description">{{{class}}}</div>' +
+			'<div class="thumb">{{{html}}}</i></div>' +
+			'<div class="name">{{{name}}}</div>' +
+			'<div class="tags">{{{tags}}}</div>' +
+			'</div>',
+		innerTemplateCompiled = Hogan.compile(innerTemplate),
+		allTemplateCompiled = Hogan.compile(allTemplate),
+		icons = {},
+		clip,
+		flashEnabled = false;
+	var state = {
+		library: "all",
+		query: ""
+	};
+	var qs = $.url().param();
+	setState("library", qs.library || "all");
+	$.getJSON("batch.json", function(data) {
+		generate(data, allTemplateCompiled, icons);
+		handlers();
+		setState("query", qs.query || "");
+	});
+
+	controls()
+
+	function setLibrary(library) {
+		var qs = $.url().param();
+		$("#libraries > .btn").removeClass("active");
+		$("[data-library='" + library + "']").addClass("active");
+		if (library == "all") {
+			delete qs.library;
+			$(".section").removeClass("hide");
+			if ($("#sticky:checkbox").is(":checked")) {
+				refreshSticky();
+			}
+		} else {
+			qs.library = library;
+			$(".section").addClass("hide");
+			$(".section#" + library).removeClass("hide");
+		}
+		updateURL(qs);
+	}
+	function search(v) {
+		v = v || "";
+		v = $.trim(v);
+		if ($('#search').data('q') == v) {
+			return;
+		}
+		$('#search').val(v).data('q', v);
+		if (v.length === 0) {
+			loadAll(icons);
+		} else {
+			iconsIndex.search(v, function(success, content) {
+				if (!success) return;
+				var result = {};
+				generate(content.hits, innerTemplateCompiled, result);
+				loadAll(result);
+			}, {hitsPerPage: 1000});
+		}
+		var qs = $.url().param();
+		if (v.length > 0) {
+			qs.query = v;
+		} else {
+			delete qs.query;
+		}
+		updateURL(qs);
+	}
+	function generate(data, template, output) {
+		data.forEach(function(v){
+			var lib, html;
+			if (v.name) {
+				lib = v._tags[0];
+				html = template.render(v);
+				if (!output[lib]) {
+					output[lib] = html;
+				} else {
+					output[lib] += html;
+				}
+			}
+		});
+	}
+	function loadAll(htmls) {
+		$('.section').hide();
+		$('.icons').empty();
+		for (var i in htmls) {
+			$('#' + i + ' .icons').html(htmls[i]).parent().show();
+		}
+		if (flashEnabled) {
+			clip.clip($(".entry"));
+		}
+		if ($("#sticky:checkbox").is(":checked")) {
+			refreshSticky();
+		}
+	}
+	function refreshSticky() {
+		$(".header").fixedsticky("destroy").fixedsticky();
+	}
+	function updateURL(qs) {
+		qs = $.param(qs);
+		if (qs.length === 0) {
+			history.replaceState(null, "GlyphSearch", "./");
+		} else {
+			history.replaceState(null, "GlyphSearch", "?" + qs);
+		}
+		window.scrollTo(0, 0);
+	}
+	function handlers() {
+		if ($("#sticky:checkbox").is(":checked")) {
+			$(window).on("resize", debounce(function() {
+				refreshSticky();
+			}, 250));
+		}
+		$('#search').keydown(function(e) {
+			if (e.which == 13) {
+				e.preventDefault();
+				return;
+			}
+		})
+		.keyup(function(e) {
+			if (e.which == 27) {
+				setState("query", "");
+				return;
+			}
+			setState("query", $(this).val());
+		})
+		.on("change", function() {
+			setState("query", $(this).val());
+		})
+		.on("input", function() {
+			var val = $(this).val();
+			if (val.length === 0) {
+				setState("query", "");
+			}
+		});
+		$("#libraries .btn").click(function(e) {
+			e.preventDefault();
+			var library = $(this).attr("data-library");
+			setState("library", library);
+		});
+	}
+	function setState(prop, val) {
+		if (prop == "library") {
+			setLibrary(val);
+		} else if (prop == "query") {
+			search(val);
+		}
+		state[prop] = val;
+	}
+	function debounce(fn, delay) {
+		var timer = null;
+		return function () {
+			var context = this, args = arguments;
+			clearTimeout(timer);
+			timer = setTimeout(function () {
+				fn.apply(context, args);
+			}, delay);
+		};
+	}
+});
+
+
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.7.1/spectrum.js"></script>
 </html>
-<!-- 
+<!--
 todo:
 tooltip
 clipboard
@@ -125,7 +544,7 @@ export
 persist
 categorize via drag and drop
 -->
-<!-- 
+<!--
 https://api.jquery.com/category/effects/
 http://getbootstrap.com/components/
 http://jqueryui.com/resizable/
